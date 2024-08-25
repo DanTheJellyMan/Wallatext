@@ -1,0 +1,6 @@
+@echo off
+echo Starting SSH tunnel...
+start "Tunnel" cmd /c "ssh -R wallatext:80:localhost:443 serveo.net"
+
+echo Starting Node.js server...
+start "Server" cmd /c "cd C:\Users\Daniel\Desktop\Wallatext && node server.js"

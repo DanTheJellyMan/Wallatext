@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Wallatext</title>
+        <link rel="shortcut icon" type="image/x-icon" href="./assets/favicon.ico">
+        <link rel="stylesheet" href="styles.css">
+        <script defer src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+        <script defer src="app.js"></script>
+    </head>
+    
+    <body>
+        <header>
+            <h1>Wall-a-Text</h1>
+            <img src="./assets/chat icon.png">
+        </header>
+
+        <dialog>
+            <div class="heading">
+                <h2>Options:</h2>
+                <img src="./assets/close icon.png">
+            </div>
+            <div class="options">
+                <p id="games">Games</p>
+                <hr>
+                <p id="logout">Logout</p>
+                <hr>
+                <p id="delete">Delete my info</p>
+            </div>
+        </dialog>
+
+        <ul class="chat wall"></ul>
+        <div class="chat bg1"></div>
+        <div class="chat bg2"></div>
+        <div class="chat bg3"></div>
+
+        <footer>
+            <div id="input-area">
+                <div><label>You :</label></div>
+                <input placeholder="Send a message..." maxlength="50" minlength="1" required>
+                <span id="hidden-span"></span>
+            </div>
+        </footer>
+
+        <script defer>
+            const menu = document.querySelector("dialog");
+
+            document.querySelector("header > img").addEventListener("click", () => {
+                menu.showModal();
+            });
+
+            document.querySelector("dialog > .heading > img").addEventListener("click", () => {
+                menu.close();
+            });
+
+            // Focus on input
+            document.querySelector("input").focus();
+            document.addEventListener("keydown", () => {
+                document.querySelector("input").focus();
+            });
+        </script>
+    </body>
+</html>
