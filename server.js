@@ -59,8 +59,24 @@ io.on("connection", (socket) => {
         socket.emit("navigate-to-page", "/gaming");
     });
 
-    // TODO add actions for different client menu requests
-    // ex. Logging out (remove socket ip from associated username)
+    // Remove socket ip from associated username
+    socket.on("logout", () => {
+        if (activeUsers[socket.id].slice(0,6) !== "Guest_") {
+            logs(["'users'"], "logout", activeUsers[socket.id]);
+        }
+        socket.emit("logged-out");
+    });
+
+    // Delete all users related to user's IP or username
+    socket.on("delete-info", () => {
+        if (activeUsers[socket.id].slice(0,6) !== "Guest_") {
+            logs(["'users'"], "delete", {
+                ip: socket.handshake.headers["x-forwarded-for"],
+                username: activeUsers[socket.id]
+            });
+        }
+        socket.emit("logged-out");
+    });
 
     socket.on('disconnect', () => {
         if (activeUsers[socket.id]) {
@@ -78,18 +94,20 @@ io.on("connection", (socket) => {
 
 async function handleLogin(socket) {
     const userInfo = {
-        "ip": socket.handshake.headers["x-forwarded-for"],
+        "ip": [socket.handshake.headers["x-forwarded-for"]],
         "username": null,
         "password": null
     };
     
     // Go through all associated ips of each user
     for (const user of logs(["'users'"], "grab")) {
-        if (user.ip.includes(userInfo.ip)) {
-            // Return username related to ip address
-            socket.emit("username", user.username);
-            console.log("returning user: " + user.username);
-            return user.username;
+        for (const ip of user["ip"]) {
+            if (ip === userInfo.ip[0]) {
+                // Return username related to ip address
+                socket.emit("username", user.username);
+                console.log("returning user: " + user.username);
+                return user.username;
+            }
         }
     }
     
@@ -129,12 +147,15 @@ async function handleLogin(socket) {
     if (userInfo.username === null) {
         let guestUsername;
         const generateGuest = () => {
-            guestUsername = `Guest_${randomNumber(0,9)}${randomNumber(0,9)}${randomNumber(0,9)}`;
+            guestUsername = `Guest_${randomNumber(0,9)}${randomNumber(0,9)}${randomNumber(0,9)}${randomNumber(1,5)}`;
             Object.values(activeUsers).forEach(username => {
                 if (username === guestUsername) {
                     generateGuest();
                 }
             });
+            for (const message of logs(["'messages'"], "grab")) {
+                if (message.user === guestUsername) generateGuest();
+            }
         }
         generateGuest();
         console.log(guestUsername);
@@ -170,12 +191,11 @@ async function handleLogin(socket) {
             });
         }
         await returnUsername();
-
         // Associate current ip with user's credentials
         const users = logs(["'users'"], "grab");
         for (let i=0; i<users.length; i++) {
-            if (users[i]["username"].includes(userInfo.username)) {
-                logs(["'users'", `"${i}"`, "'ip'"], "log", userInfo.ip);
+            if (users[i]["username"] === userInfo.username) {
+                logs(["'users'", `"${i}"`, "'ip'"], "log", userInfo.ip[0]);
                 break;
             }
         }
@@ -195,7 +215,8 @@ async function handleLogin(socket) {
 // info (any) - data to be used with "action"
 function logs(path, action, info) {
     let logs = JSON.parse(fs.readFileSync("logs.json"));
-    let pathStr = eval("logs[" + path.join("][") + "]");
+    let pathStr = eval("logs[" + path.join("][") + "]");    // Functionally the same as doing: logs[(key)]
+    // Do not write to file with pathStr
 
     if (action === "log") {
         pathStr.push(info);
@@ -210,8 +231,32 @@ function logs(path, action, info) {
         return false;
     } else if (action === "grab") {
         return pathStr;
+    } else if (action === "logout") {
+        for (const user of pathStr) {
+            if (user.username === info) {
+                user.ip = [];
+                fs.writeFileSync("logs.json", JSON.stringify(logs, null, 4));
+            }
+        }
     } else if (action === "delete") {
-        // TODO add client menu with "delete data" button
+        // info = {ip, username}
+        for (const userIndex in pathStr) {
+            if (pathStr[userIndex].username === info.username) {
+                console.log(pathStr[userIndex]);
+                pathStr.splice(userIndex, 1);
+                continue;
+            }
+            // Check every IP
+            for (const ip of pathStr[userIndex].ip) {
+                if (ip === info.ip) {
+                    console.log(pathStr[userIndex]);
+                    pathStr.splice(userIndex, 1);
+                    break;
+                }
+            }
+        }
+        console.log(JSON.stringify(pathStr) + '\n' + JSON.stringify(logs));
+        fs.writeFileSync("logs.json", JSON.stringify(logs, null, 4));
     }
 }
 

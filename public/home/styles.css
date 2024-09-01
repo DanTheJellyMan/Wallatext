@@ -63,6 +63,7 @@ header > img {
     filter: invert(100%);
     opacity: 95%;
     animation: 6s ease-in-out infinite chat-bubble;
+    transition: all 85ms ease-in;
 }
 header > img:hover {
     cursor: pointer;
@@ -116,19 +117,11 @@ dialog > .heading > img {
     width: 12.5vw;
     max-width: 100px;
     opacity: 100%;
+    transition: all 125ms ease-in;
 }
 dialog > .heading > img:hover {
     cursor: pointer;
     opacity: 60%;
-    animation: 200ms ease-in-out 1 fade-out;
-}
-@keyframes fade-out {
-    0% {
-        opacity: 100%;
-    }
-    100% {
-        opacity: 60%;
-    }
 }
 
 dialog > .options {
@@ -147,6 +140,7 @@ dialog > .options > p {
     margin: 0 auto;
     padding: 2rem;
     opacity: 75%;
+    transition: all 150ms ease-in-out;
 }
 dialog > .options > p:hover {
     cursor: pointer;
@@ -159,18 +153,10 @@ dialog > .options > hr {
     border: none;
     border-radius: 50px;
     background-color: rgba(230,210,230,0.8);
+    transition: all 200ms ease-out;
 }
 dialog > .options:hover > hr {
-    animation: 130ms ease-in-out 1 glow;
     background-color: rgb(225,205,255);
-}
-@keyframes glow {
-    0% {
-        background-color: rgba(230,210,230,0.8);
-    }
-    100% {
-        background-color: rgb(225,205,255);
-    }
 }
 
 .chat {

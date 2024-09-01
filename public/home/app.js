@@ -4,11 +4,11 @@ const input = document.querySelector("input");
 let navigating = false;
 let connected = false;
 let usernamePrompted = false;
-let intervalId = setInterval(() => {
+setInterval(() => {
     if (!connected || !username && !usernamePrompted) {
         location.reload();
     }
-}, 1000*10);
+}, 1000*5);
 
 socket.on("connect", () => {
     connected = true;
@@ -54,6 +54,17 @@ document.querySelector(".options > #games").addEventListener("click", () => {
 socket.on("navigate-to-page", page => {
     navigating = true;
     location = page;
+});
+
+// Remove IP from account and reload page
+document.querySelector(".options > #logout").addEventListener("click", () => {
+    socket.emit("logout");
+    socket.on("logged-out", () => location.reload());
+});
+
+document.querySelector(".options > #delete").addEventListener("click", () => {
+    socket.emit("delete-info");
+    socket.on("logged-out", () => location.reload());
 });
 
 // Send a message when user presses Enter in the text box
