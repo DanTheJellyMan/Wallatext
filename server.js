@@ -3,23 +3,31 @@ const express = require("express");
 const app = express();
 const httpServer = require('http').createServer(app);
 const io = require('socket.io')(httpServer, {
-    cors: {origin: "*"}
+    cors: {origin: ["https://wallatext.serveo.net", "http://localhost:443"]}
 });
 httpServer.listen(443, () => console.log('HTTPS server running on port 443'));
 
-app.use(express.static(__dirname + "/public"));
-app.get("/", (req, res) => {
-    res.redirect("/home");
+let navigatingToGamePage = false;
+app.get("/", (req, res) => res.redirect("/home"));
+// Handle sending user to games page
+app.get("/gaming", (req, res) => {
+    navigatingToGamePage = true;
+    if (req.path.includes("gaming") && req.path !== "/gaming/") {
+        res.redirect("/gaming/");
+    } else {
+        res.sendFile(__dirname + "/public/gaming/index.html");
+    }
 });
+app.use("/gaming/games", (req, res, next) => {
+    res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0");
+    res.setHeader("Pragma", "no-cache");
+    res.setHeader("Expires", "0");
+    next();
+});
+app.use(express.static(__dirname + "/public"));
 app.use((req, res) => {
     res.status(404);
-    res.send("<h1>404 ERROR<br></h1><p><i>hey look bro, I understand your struggle."+
-        "we've all been there before. i cant even really blame you for trying"+
-        " something different, something fresh.<br>some people love a great"+
-        " adventure, seeking out things in nature all around us to find fufillment."+
-        "<br>Alas, your journey ends here. Nothing more to find. Go somewhere else,"+
-        " as there's nothing to be found in these depths...</i></p>"
-    ); // le troll ( ͡° ͜ʖ ͡°)
+    res.send(fs.readFileSync("404error.html", "utf-8")); // le troll ( ͡° ͜ʖ ͡°)
 });
 
 const activeUsers = {}; // Key: socket.id   Value: username
@@ -27,13 +35,39 @@ const blacklist = loadBlacklist();
 
 io.on("connection", (socket) => {
     const grabUserInfo = () => {
-        return new Promise(resolve => {
-            resolve(handleLogin(socket));
+        return new Promise((resolve, reject) => {
+            if (navigatingToGamePage) {
+                navigatingToGamePage = false;
+                reject();
+            } else {
+                resolve(handleLogin(socket));
+            }
         });
     };
     grabUserInfo()
-        .then((username) => activeUsers[socket.id] = username)
-        .then(() => socket.emit("initialize-chat", logs(["'messages'"], "grab")));
+        .then((username) => {
+            activeUsers[socket.id] = username;
+            socket.emit("initialize-chat", logs(["'messages'"], "grab"));
+        })
+        .catch(() => {
+            // Regenerate a username for guests going to game page
+            let guestUsername;
+            const generateGuest = () => {
+                guestUsername = `Guest_${randomNumber(0,9)}${randomNumber(0,9)}${randomNumber(0,9)}${randomNumber(1,5)}`;
+                Object.values(activeUsers).forEach(username => {
+                    if (username === guestUsername) {
+                        generateGuest();
+                    }
+                });
+                for (const message of logs(["'messages'"], "grab")) {
+                    if (message.user === guestUsername) generateGuest();
+                }
+            }
+            generateGuest();
+            console.log(guestUsername);
+            activeUsers[socket.id] = guestUsername;
+            socket.emit("username", guestUsername);
+        });
 
     socket.on("message", (msg) => {
         if (blacklisted(msg)) {
@@ -52,11 +86,6 @@ io.on("connection", (socket) => {
         socket.broadcast.emit("message", msgInfo);
         logs(["'messages'"], "log", msgInfo);
         console.log(`${activeUsers[socket.id]}: ${msg}`);
-    });
-
-    // Handle sending user to games page
-    socket.on("gaming-page", () => {
-        socket.emit("navigate-to-page", "/gaming");
     });
 
     // Remove socket ip from associated username
@@ -78,6 +107,10 @@ io.on("connection", (socket) => {
         socket.emit("logged-out");
     });
 
+    /* --- Gaming page logic --- */
+
+    //code
+
     socket.on('disconnect', () => {
         if (activeUsers[socket.id]) {
             console.log(`${activeUsers[socket.id]} disconnected`);
@@ -88,9 +121,9 @@ io.on("connection", (socket) => {
     });
 });
 
-/* setInterval(() => {
-    console.log(Object.values(activeUsers));
-}, 1000*60*30); */
+// setInterval(() => {
+//     console.log(Object.values(activeUsers));
+// }, 1000*5);
 
 async function handleLogin(socket) {
     const userInfo = {

@@ -1,0 +1,31 @@
+<style>
+    p b:hover {
+        cursor: pointer;
+    }
+</style>
+<h1>
+    404 ERROR<br></h1><p><i>hey look bro, I understand your struggle. we've all been there before. i cant even really blame you for trying something different, something fresh.<br>
+    some people love a great adventure, seeking out things in nature all around us to find fufillment.<br>
+    Alas, your journey ends here. Nothing more to find. Go somewhere else,<br>as there's <b>nothing to be found</b> in these depths..<span>.</span></i></p>
+</h1>
+<script defer>
+    let clicks = 0;
+    document.querySelector("p b").addEventListener("click", () => {
+        clicks++;
+        if (clicks === 21) {
+            let result = confirm("how tf are u that slow, just go to the homepage");
+            if (result) {
+                location = "https://wallatext.serveo.net/home";
+            }
+        }
+        if (clicks >= 60) {
+            alert(insults[randomNumber(insults.length-1)]);
+            while (true) {}    // F**k you personally  :D
+        }
+    });
+    document.querySelector("span").addEventListener("click", () => location = "https://www.youtube.com/@DanTheJellyMan");
+    function randomNumber(max) {
+        return Math.floor(Math.random() * (max+1));
+    }
+    const insults = ["you're hopeless...", "i doubt the sped class would do much for you...", "have you tried the fork-in-the-outlet magic trick?", "Most people with mental retardation have IQs around 50...\n\nFor your sake, I hope yours hasn't fallen too far behind.....", "still making ICUP jokes?", "fidget spinners would be a great investment for someone of your mental calibre!", "pro tip: the playdough actually tastes like cotton candy when you color it pink!"];
+</script>

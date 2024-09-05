@@ -1,0 +1,6 @@
+@echo off
+echo Starting SSH tunnel...
+start "Tunnel" cmd /c "cd C:\Users\Daniel\Desktop\Wallatext && lt --port 443 --subdomain wallatext"
+
+echo Starting Node.js server...
+start "Server" cmd /c "cd C:\Users\Daniel\Desktop\Wallatext && node server.js"

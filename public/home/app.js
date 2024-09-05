@@ -1,4 +1,4 @@
-const socket = io("https://wallatext.serveo.net");
+const socket = io("https://wallatext.loca.lt");
 let username = null;
 const input = document.querySelector("input");
 let navigating = false;
@@ -16,6 +16,7 @@ socket.on("connect", () => {
 });
 socket.on("username", (user) => {
     username = user;
+    document.querySelector("abbr").title = username;
     console.log(username);
 });
 socket.on("grab-username", (status) => {
@@ -47,13 +48,10 @@ socket.on("initialize-chat", (chat) => {
     });
 });
 
-// Request to navigate to games page
+// Navigate to games page
 document.querySelector(".options > #games").addEventListener("click", () => {
-    socket.emit("gaming-page");
-});
-socket.on("navigate-to-page", page => {
     navigating = true;
-    location = page;
+    location = "/gaming";
 });
 
 // Remove IP from account and reload page

@@ -6,10 +6,34 @@
         <link rel="stylesheet" href="styles.css">
         <title>Gaming</title>
         <link rel="shortcut icon" type="image/x-icon" href="./assets/favicon.ico">
+        <script defer src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
         <script defer src="script.js"></script>
     </head>
 
     <body>
-        <h1>uwu bitch</h1>
+        <header>
+            <h1>My Works</h1>
+            <img id="nav-home" src="./assets/home icon.png">
+        </header>
+
+        <main>
+            <h2>Multiplayer</h2>
+            <div class="catalog multiplayer">
+                <div class="item" onclick="">
+                    <div class="icon"></div>
+                    <p>i am a frog lmao</p>
+                </div>
+            </div>
+
+            <hr>
+
+            <h2>Singleplayer</h2>
+            <div class="catalog singleplayer">
+                <div class="item" onclick="fetchGame('minesweeper')">
+                    <img class="icon" src="./games/minesweeper/flag.png"></img>
+                    <p>MINESWEEPER</p>
+                </div>
+            </div>
+        </main>
     </body>
 </html>
