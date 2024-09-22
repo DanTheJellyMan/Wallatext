@@ -21,7 +21,7 @@
             <div class="catalog multiplayer">
                 <div class="item" onclick="">
                     <div class="icon"></div>
-                    <p>i am a frog lmao</p>
+                    <p>TBD</p>
                 </div>
             </div>
 
@@ -34,6 +34,96 @@
                     <p>MINESWEEPER</p>
                 </div>
             </div>
+
+            <script defer>
+                // Prevent dragging on images
+                document.querySelectorAll('img').forEach(img => {
+                    img.setAttribute('draggable', 'false');
+                });
+
+                // Handle hr styling on catalog hover
+                
+                const hr = document.querySelector("hr");
+
+                document.addEventListener("mouseover", (event) => {
+                    if (event.target && inNodeList(".catalog", event.target)) {
+                        hr.style.background = "linear-gradient(90deg, hsl(350,80%,35%), hsl(220,75%,40%))";
+                        hr.style.filter = "blur(1.25px) brightness(200%) saturate(150%) contrast(150%) hue-rotate(-20deg)";
+                    }
+                });
+
+                document.addEventListener("mouseout", (event) => {
+                    if (event.target && inNodeList(".catalog", event.target)) {
+                        hr.style.filter = hr.style.background = "";
+                    }
+                });
+
+                // Check all elements of a class for whether
+                // event.target is within one of them
+                function inNodeList(selector, target) {
+                    for (const node of document.querySelectorAll(selector)) {
+                        if (node.contains(target)) {
+                            return true;
+                        }
+                    };
+                    return false;
+                }
+            </script>
+
+            <!-- Used for shrinking .item element when pressed -->
+            <script defer>
+                let pressed = false;
+                let result;
+
+                document.addEventListener("mousedown", (event) => {
+                    result = inNodeList(".item");
+                    if (event.target && result[0]) {
+                        pressed = true;
+                        growItem(result[1], false);
+                    }
+
+                    // Check all elements of .item class for whether
+                    // event.target is one of them
+                    function inNodeList(selector) {
+                        for (const node of document.querySelectorAll(selector)) {
+                            if (node.contains(event.target)) {
+                                return [true, node];    // Return the .item element
+                            }
+                        };
+                        return false;
+                    }
+                });
+
+                document.addEventListener("mouseup", () => {
+                    if (pressed) {
+                        pressed = false;
+
+                        // Grow the item once again when mouse is no longer held down
+                        growItem(result[1], true);
+                    }
+                });
+
+                function growItem(item, grow) {
+                    let defaultWidth, defaultHeight, newWidth, newHeight;
+                    
+                    // Width/height is in REMs
+                    defaultWidth = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--item-width"));
+                    defaultHeight = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--item-height"));
+
+                    if (grow) {
+                        newWidth = defaultWidth;
+                        newHeight = defaultHeight;
+                    } else {
+                        newWidth = defaultWidth - 2;
+                        newHeight = defaultHeight - 2;
+                    }
+
+                    if (item) {
+                        item.style.setProperty("width", newWidth + "rem");
+                        item.style.setProperty("height", newHeight + "rem");
+                    }
+                }
+            </script>
         </main>
     </body>
 </html>

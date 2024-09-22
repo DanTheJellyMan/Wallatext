@@ -9,3 +9,12 @@ body {
     height: 100%;
     background-color: white;
 }
+
+#grid-container {
+    min-width: 540px;
+    width: 100vw;
+    min-height: 540px;
+    height: 100vh;
+    margin: 0 auto;
+    background-color: gray;
+}

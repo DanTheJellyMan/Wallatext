@@ -31,6 +31,7 @@ app.use((req, res) => {
 });
 
 const activeUsers = {}; // Key: socket.id   Value: username
+const gameData = {};
 const blacklist = loadBlacklist();
 
 io.on("connection", (socket) => {
@@ -109,9 +110,44 @@ io.on("connection", (socket) => {
 
     /* --- Gaming page logic --- */
 
-    //code
+    socket.on("launch-game", game => {
+        if (!gameData[game]) gameData[game] = {};
+        gameData[game][socket.id] = {};
+        console.log(gameData)
+    });
+
+    socket.on("exit-game", () => {
+        removeGameData();
+    });
+
+    socket.on("start-game", data => {
+        // Create array containing all mines and squares
+        let arr = [];
+        for (let y=0; y<data.height; y++) {
+            arr.push([]);
+            for (let x=0; x<data.width; x++) {
+                if (randomNumber(1,5) === 1) {
+                    arr[y].push(1);
+                } else {
+                    arr[y].push(0);
+                }
+            }
+        }
+        gameData.minesweeper[socket.id]["grid"] = arr;
+        socket.emit("game-started", gameData.minesweeper[socket.id]["grid"]);
+    });
+
+    socket.on("square-click", (x, y) => {
+        // (x,y) is zero indexed
+        let gameGrid = gameData.minesweeper[socket.id].grid;
+        if (gameGrid[y][x] === 1) {
+            socket.emit("square-result", )
+        }
+    });
 
     socket.on('disconnect', () => {
+        removeGameData();
+
         if (activeUsers[socket.id]) {
             console.log(`${activeUsers[socket.id]} disconnected`);
             delete activeUsers[socket.id];
@@ -119,11 +155,26 @@ io.on("connection", (socket) => {
             console.log(`A user disconnected (${socket.id})`);
         }
     });
+
+    function removeGameData() {
+        // Remove all game data related to socket.id
+        const allGameData = Object.entries(gameData);
+        for (let i=0; i<allGameData.length; i++) {
+            const users = Object.entries(allGameData[i][1]);
+            for (let j=0; j<users.length; j++) {
+                if (users[j][0] === socket.id) {
+                    delete gameData[allGameData[i][0]][socket.id];
+                }
+            }
+            // If game (key) is empty, clear it from gameData
+            if (Object.entries(allGameData[i][1]).length === 0) {
+                delete gameData[allGameData[i][0]];
+            }
+        }
+    }
 });
 
-// setInterval(() => {
-//     console.log(Object.values(activeUsers));
-// }, 1000*5);
+
 
 async function handleLogin(socket) {
     const userInfo = {

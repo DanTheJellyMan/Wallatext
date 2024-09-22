@@ -63,7 +63,8 @@ header > img {
     filter: invert(100%);
     opacity: 95%;
     animation: 6s ease-in-out infinite chat-bubble;
-    transition: all 85ms ease-in;
+    transition: 85ms ease-in;
+    transition-property: animation-play-state, filter;
 }
 header > img:hover {
     cursor: pointer;
@@ -117,7 +118,7 @@ dialog > .heading > img {
     width: 12.5vw;
     max-width: 100px;
     opacity: 100%;
-    transition: all 125ms ease-in;
+    transition: opacity 125ms ease-in;
 }
 dialog > .heading > img:hover {
     cursor: pointer;
@@ -140,7 +141,7 @@ dialog > .options > p {
     margin: 0 auto;
     padding: 2rem;
     opacity: 75%;
-    transition: all 150ms ease-in-out;
+    transition: opacity 150ms ease-in-out;
 }
 dialog > .options > p:hover {
     cursor: pointer;
@@ -153,7 +154,7 @@ dialog > .options > hr {
     border: none;
     border-radius: 50px;
     background-color: rgba(230,210,230,0.8);
-    transition: all 200ms ease-out;
+    transition: background-color 200ms ease-out;
 }
 dialog > .options:hover > hr {
     background-color: rgb(225,205,255);
@@ -293,7 +294,8 @@ footer {
     height: 100%;
     padding: 1rem;
     padding-right: 0.3rem;
-    transition: all 200ms ease-in-out;
+    transition: 200ms ease-in-out;
+    transition-property: opacity, font-size;
     text-decoration: underline;
 }
 #input-area > div:hover {
